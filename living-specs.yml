@@ -1,0 +1,9 @@
+enabled: true
+exempt: ["*.config.*", "*.test.*", "**/migrations/**"]
+capabilities:
+  - name: ship-engine
+    match: [".specify/extensions/ship/scripts/**"]
+  - name: ship-stages
+    match: [".specify/extensions/ship/scripts/stages/**"]
+  - name: ship-view
+    match: ["editor/ship-view/src/**"]
