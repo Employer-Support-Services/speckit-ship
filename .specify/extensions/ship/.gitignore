@@ -1,0 +1,11 @@
+# The extension carries its own ignores so it stays self-contained: it is
+# installed into other people's repositories, and it must not depend on those
+# repositories having the right entries in a root .gitignore.
+__pycache__/
+*.py[cod]
+
+# Run state and the concurrency lock. Also listed in .specify/.gitignore by
+# install.py, and repeated here so a copy of this directory is safe on its own.
+state.json
+state.json.corrupt-*
+ship.lock
