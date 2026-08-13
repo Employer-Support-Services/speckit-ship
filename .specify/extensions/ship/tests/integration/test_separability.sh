@@ -159,14 +159,38 @@ JS
   fi
 fi
 
-printf '\n== Direction 3: the view never writes pipeline state ==\n\n'
+printf '\n== Direction 3: the view writes configuration, never pipeline state ==\n\n'
 
-if grep -rn "writeFile\|appendFile\|mkdir\|rmSync\|unlink" "$view_dir/src" \
-     --include="*.ts" | grep -v "__tests__" > "$work/writes.txt"; then
-  bad "the view module contains a write path:"
+# The view legitimately writes config.json (US5). The invariant is narrower and
+# more important than "writes nothing": state.json belongs to the pipeline, and
+# a view that could write it would let the editor claim things happened that
+# never did.
+
+if grep -rn "writeFileSync\|appendFileSync\|renameSync\|rmSync\|unlinkSync\|mkdirSync" \
+     "$view_dir/src" --include="*.ts" \
+     | grep -v "__tests__" \
+     | grep -v "src/configWriter.ts" > "$work/writes.txt"; then
+  bad "a write path exists outside configWriter.ts:"
   sed 's/^/        /' "$work/writes.txt"
 else
-  ok "the view module has no filesystem write path at all"
+  ok "every filesystem write in the view lives in configWriter.ts"
+fi
+
+# Comment lines are stripped first. The previous version flagged the very
+# docstring explaining this rule, which would train someone to delete the
+# explanation to make the check pass.
+if grep -vE '^\s*(\*|//|/\*)' "$view_dir/src/configWriter.ts" \
+     | grep -n "statePath\|state\.json" > "$work/statewrite.txt"; then
+  bad "configWriter.ts references pipeline state:"
+  sed 's/^/        /' "$work/statewrite.txt"
+else
+  ok "configWriter.ts never references state.json"
+fi
+
+if grep -rn "writeFileSync\|renameSync\|unlinkSync" "$view_dir/src/stateReader.ts" >/dev/null 2>&1; then
+  bad "stateReader.ts contains a write path"
+else
+  ok "stateReader.ts has no write path at all"
 fi
 
 printf '\n%d passed, %d failed\n\n' "$pass" "$fail"

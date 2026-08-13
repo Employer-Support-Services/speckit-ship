@@ -239,14 +239,14 @@ independent test surface.
 
 **Independent Test**: quickstart.md Scenario 8 config cases — change the target branch and composition mode in the view, run a ship, and confirm the run honors both.
 
-- [ ] T088 [US5] Implement `editor/ship-view/src/configWriter.ts` writing `.specify/extensions/ship/config.json` atomically. It writes **only** config — never `state.json`
-- [ ] T089 [US5] Port the T014 validation rules to `editor/ship-view/src/configValidation.ts` so the view and the CLI reject identically, and add a test asserting parity against the shared schema. Two validators that drift are worse than one (FR-040)
-- [ ] T090 [P] [US5] Implement branch, composition-mode, and merge-method controls in `editor/ship-view/src/panels/configPanel.ts`, backed by `repo_meta()` for which merge methods the repository permits
-- [ ] T091 [P] [US5] Implement release-mode configuration in `editor/ship-view/src/panels/configPanel.ts` — observed/executed/none, with `release.action` required and validated when `executed` is chosen (FR-039)
-- [ ] T092 [US5] Implement the disabled-control rule in `editor/ship-view/src/panels/configPanel.ts` — any control whose backing capability is unavailable renders **visibly disabled with the reason stated** and cannot be toggled. A control that looks operable and is not is the exact defect this feature exists to avoid (FR-036)
-- [ ] T093 [US5] Implement rejected-save handling in `editor/ship-view/src/configWriter.ts` — name the specific problem, retain the previous configuration, leave no half-written file (FR-040)
-- [ ] T094 [P] [US5] Write `.specify/extensions/ship/commands/speckit.ship.config.md` and the `config` subcommand in `.specify/extensions/ship/scripts/ship.py` for show/set/validate from the CLI
-- [ ] T095 [US5] Round-trip test in `editor/ship-view/src/__tests__/config-roundtrip.test.ts` plus a manual run: change the target branch in the view, ship, confirm the run used it (Acceptance 5.1)
+- [X] T088 [US5] Implement `editor/ship-view/src/configWriter.ts` writing `.specify/extensions/ship/config.json` atomically. It writes **only** config — never `state.json`
+- [X] T089 [US5] Port the T014 validation rules to `editor/ship-view/src/configValidation.ts` so the view and the CLI reject identically, and add a test asserting parity against the shared schema. Two validators that drift are worse than one (FR-040)
+- [X] T090 [P] [US5] Implement branch, composition-mode, and merge-method controls in `editor/ship-view/src/panels/configPanel.ts`, backed by `repo_meta()` for which merge methods the repository permits
+- [X] T091 [P] [US5] Implement release-mode configuration in `editor/ship-view/src/panels/configPanel.ts` — observed/executed/none, with `release.action` required and validated when `executed` is chosen (FR-039)
+- [X] T092 [US5] Implement the disabled-control rule in `editor/ship-view/src/panels/configPanel.ts` — any control whose backing capability is unavailable renders **visibly disabled with the reason stated** and cannot be toggled. A control that looks operable and is not is the exact defect this feature exists to avoid (FR-036)
+- [X] T093 [US5] Implement rejected-save handling in `editor/ship-view/src/configWriter.ts` — name the specific problem, retain the previous configuration, leave no half-written file (FR-040)
+- [X] T094 [P] [US5] Write `.specify/extensions/ship/commands/speckit.ship.config.md` and the `config` subcommand in `.specify/extensions/ship/scripts/ship.py` for show/set/validate from the CLI
+- [X] T095 [US5] Round-trip test in `editor/ship-view/src/__tests__/config-roundtrip.test.ts` plus a manual run: change the target branch in the view, ship, confirm the run used it (Acceptance 5.1)
 
 **Checkpoint**: All five user stories independently functional.
 

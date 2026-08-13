@@ -17,6 +17,14 @@
 import * as vscode from "vscode";
 
 import { allPanels, renderPanelHtml } from "./panels/index.js";
+import {
+  applyChange,
+  buildControls,
+  capabilitiesFrom,
+  coerce,
+  renderConfigPanel,
+} from "./panels/configPanel.js";
+import { loadConfig, saveConfig, withChange } from "./configWriter.js";
 import { readState, statePath, type ReadResult } from "./stateReader.js";
 import { DEFAULT_FRESHNESS_SECONDS } from "./staleness.js";
 
@@ -60,12 +68,64 @@ export function debounce(fn: () => void, ms: number): () => void {
 
 class ShipViewProvider implements vscode.WebviewViewProvider {
   private view: vscode.WebviewView | undefined;
+  private notice: { kind: "error" | "info"; problems: string[] } | null = null;
 
   constructor(private readonly context: vscode.ExtensionContext) {}
 
   resolveWebviewView(view: vscode.WebviewView): void {
     this.view = view;
-    view.webview.options = { enableScripts: false };
+
+    // Scripts are enabled deliberately, and only because the configuration
+    // panel needs to post changes back. The cost is accepted with three
+    // mitigations, not waved through:
+    //   - a per-render nonce, so only our own inline script may run;
+    //   - a CSP with `default-src 'none'`, so the panel can reach nothing else;
+    //   - every message re-validated on this side (see onMessage), because the
+    //     webview's DOM is not a trust boundary.
+    view.webview.options = { enableScripts: true };
+    view.webview.onDidReceiveMessage((message) => this.onMessage(message));
+    this.refresh();
+  }
+
+  /**
+   * Handle a change posted by the panel.
+   *
+   * Everything is re-derived here — the controls, their enabled state, and the
+   * validation. Nothing from the webview is trusted except the field id and the
+   * raw value, because a `disabled` attribute in the DOM is a presentation
+   * fact and can be edited away.
+   */
+  private onMessage(message: unknown): void {
+    const root = this.workspaceRoot();
+    if (!root) return;
+
+    const msg = message as { type?: string; field?: string; value?: string };
+    if (msg?.type !== "change" || typeof msg.field !== "string") return;
+
+    const loaded = loadConfig(root);
+    const state = readState(root).state;
+    const capabilities = capabilitiesFrom(state);
+    const controls = buildControls(loaded.config, capabilities);
+
+    const decision = applyChange(controls, msg.field);
+    if (!decision.accepted) {
+      // FR-036: refused on this side, not merely styled as unavailable.
+      this.notice = { kind: "error", problems: [decision.refusal] };
+      this.refresh();
+      return;
+    }
+
+    const control = controls.find((c) => c.id === msg.field)!;
+    const next = withChange(loaded.config, msg.field, coerce(control, msg.value ?? ""));
+
+    const result = saveConfig(root, next, {
+      permittedMergeMethods: capabilities.permittedMergeMethods,
+    });
+
+    this.notice = result.saved
+      ? { kind: "info", problems: ["Takes effect on the next ship run."] }
+      : { kind: "error", problems: result.problems };
+
     this.refresh();
   }
 
@@ -107,13 +167,24 @@ class ShipViewProvider implements vscode.WebviewViewProvider {
       now: Date.now(),
     });
 
-    return page(
-      [
-        ...notices,
-        ...panels.map(renderPanelHtml),
-        `<p class="source">${escape(statePath(root))}</p>`,
-      ].join("\n")
-    );
+    const loaded = loadConfig(root);
+    if (loaded.message) notices.push(`<p class="notice">${escape(loaded.message)}</p>`);
+
+    const controls = buildControls(loaded.config, capabilitiesFrom(result.state));
+    const nonce = makeNonce();
+
+    const body = [
+      ...notices,
+      ...panels.map(renderPanelHtml),
+      renderConfigPanel(controls, nonce, this.notice),
+      `<p class="source">${escape(statePath(root))}</p>`,
+    ].join("\n");
+
+    // A notice describes one save; it must not persist across re-renders and
+    // read as the outcome of a later, different action.
+    this.notice = null;
+
+    return page(body, nonce);
   }
 }
 
@@ -133,12 +204,35 @@ function escape(text: string): string {
     .replace(/>/g, "&gt;");
 }
 
-function page(body: string): string {
+function makeNonce(): string {
+  // Fresh per render, so a script captured from an earlier page cannot run in a
+  // later one.
+  const bytes = new Uint8Array(16);
+  for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function page(body: string, nonce = ""): string {
+  const script = nonce
+    ? `<script nonce="${nonce}">
+const vscode = acquireVsCodeApi();
+for (const el of document.querySelectorAll("[data-field]")) {
+  // Disabled controls carry no listener at all. The extension host refuses
+  // them too — this is the visible half, not the enforcement.
+  if (el.disabled) continue;
+  el.addEventListener("change", () => {
+    const value = el.type === "checkbox" ? String(el.checked) : el.value;
+    vscode.postMessage({ type: "change", field: el.dataset.field, value });
+  });
+}
+</script>`
+    : "";
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}';">
 <style>
   body { font-family: var(--vscode-font-family); font-size: var(--vscode-font-size);
          color: var(--vscode-foreground); padding: 0.5rem; }
@@ -156,11 +250,20 @@ function page(body: string): string {
             padding-left: 0.5rem; opacity: 0.9; }
   .stale { font-size: 0.75em; color: var(--vscode-editorWarning-foreground);
            text-transform: none; letter-spacing: 0; }
+  .control { display: grid; grid-template-columns: 12rem 1fr; gap: 0.35rem 0.75rem;
+             padding: 0.2rem 0; align-items: baseline; }
+  .control.disabled label, .control.disabled select, .control.disabled input { opacity: 0.5; }
+  .control .reason { grid-column: 2; font-size: 0.85em;
+                     color: var(--vscode-editorWarning-foreground); font-style: italic; }
+  .control .help { grid-column: 2; font-size: 0.85em; opacity: 0.6; }
+  .notice.error { border-left-color: var(--vscode-editorError-foreground); }
+  .notice ul { margin: 0.25rem 0 0; padding-left: 1.1rem; }
   .source { margin-top: 1.5rem; font-size: 0.8em; opacity: 0.45; word-break: break-all; }
 </style>
 </head>
 <body>
 ${body}
+${script}
 </body>
 </html>`;
 }

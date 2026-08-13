@@ -756,6 +756,70 @@
       "kind": "complete",
       "by": "extension",
       "at": "2026-08-13T15:39:38.672Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T088",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T15:49:18.981Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T089",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T15:49:18.981Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T090",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T15:49:18.981Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T091",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T15:49:18.981Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T092",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T15:49:18.981Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T093",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T15:49:18.981Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T094",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T15:49:18.981Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T095",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T15:49:18.981Z"
     }
   ],
   "branch": "main",
@@ -955,5 +1019,5 @@
       "summary": "Planned SpecKit Ship as a stdlib-Python SpecKit extension driving git+gh behind one HostingClient seam, writing a Determined<T>-wrapped per-repo state.json that a separate VS Code Ship view reads; two measured findings reshaped it — gh 2.4.0 has no machine-readable `gh pr checks`, and the Companion’s tabs are compiled and closed."
     }
   },
-  "currentTask": "T088"
+  "currentTask": "T096"
 }

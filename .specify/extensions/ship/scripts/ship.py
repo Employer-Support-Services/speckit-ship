@@ -336,12 +336,92 @@ def cmd_status(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _coerce_config_value(raw: Optional[str]) -> Any:
+    """Turn a CLI string into the type the field expects.
+
+    An empty string means *unset* (back to the documented default), not the
+    empty string — `config set target_branch ""` is how a developer says "go
+    back to detecting it", and storing `""` there would be a branch name no
+    repository has.
+    """
+    if raw is None or raw == "":
+        return None
+    lowered = raw.strip().lower()
+    if lowered in ("true", "false"):
+        return lowered == "true"
+    if lowered == "null":
+        return None
+    try:
+        return int(raw)
+    except ValueError:
+        return raw
+
+
+def _apply_config_change(config: Dict[str, Any], key: str, raw: Optional[str]) -> Dict[str, Any]:
+    """Return a copy of ``config`` with ``key`` set. Raises KeyError if unknown."""
+    import copy
+
+    updated = copy.deepcopy(config)
+    value = _coerce_config_value(raw)
+
+    if "." in key:
+        section, field = key.split(".", 1)
+        if section not in updated or not isinstance(updated[section], dict):
+            raise KeyError(key)
+        if field not in updated[section]:
+            raise KeyError(key)
+        updated[section][field] = value
+    else:
+        if key not in updated:
+            raise KeyError(key)
+        updated[key] = value
+
+    return updated
+
+
+def _read_config_key(config: Dict[str, Any], key: str) -> Any:
+    if "." in key:
+        section, field = key.split(".", 1)
+        return config.get(section, {}).get(field)
+    return config.get(key)
+
+
 def cmd_config(args: argparse.Namespace) -> int:
     repo_root = resolve_root(args.root)
     loaded = config_mod.load(repo_root)
 
     if args.config_action == "show":
         print(json.dumps(loaded.config, indent=2))
+        return EXIT_OK
+
+    if args.config_action == "set":
+        if not args.key:
+            print("config set requires KEY and VALUE, e.g. `config set target_branch trunk`",
+                  file=sys.stderr)
+            return EXIT_FAILED
+
+        try:
+            updated = _apply_config_change(loaded.config, args.key, args.value)
+        except KeyError as exc:
+            print(f"Unknown configuration key: {exc.args[0]}", file=sys.stderr)
+            return EXIT_FAILED
+
+        try:
+            path = config_mod.save(
+                repo_root,
+                updated,
+                known_remotes=gitops.remotes(cwd=repo_root) or None,
+                remote_branch_exists=lambda remote, branch: gitops.remote_branch_exists(
+                    remote, branch, cwd=repo_root
+                ),
+            )
+        except config_mod.ConfigError as exc:
+            # FR-040: named, and the previous file is untouched.
+            print(str(exc), file=sys.stderr)
+            return EXIT_FAILED
+
+        print(f"Set {args.key} = {json.dumps(_read_config_key(updated, args.key))} in {path}")
+        print("Takes effect on the next ship run.")
         return EXIT_OK
 
     if args.config_action == "validate":
@@ -407,7 +487,9 @@ def build_parser() -> argparse.ArgumentParser:
     status.set_defaults(func=cmd_status)
 
     cfg = sub.add_parser("config", help="Show, set, and validate ship configuration")
-    cfg.add_argument("config_action", choices=["show", "validate"], default="show", nargs="?")
+    cfg.add_argument("config_action", choices=["show", "set", "validate"], default="show", nargs="?")
+    cfg.add_argument("key", nargs="?", default=None, help="Dotted key, e.g. limits.repair_budget")
+    cfg.add_argument("value", nargs="?", default=None, help="New value; empty string unsets it")
     cfg.add_argument("--root", type=Path, default=None, help=argparse.SUPPRESS)
     cfg.set_defaults(func=cmd_config)
 
