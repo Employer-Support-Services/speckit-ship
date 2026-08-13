@@ -167,19 +167,19 @@ independent test surface.
 
 ### Tests for User Story 2
 
-- [ ] T057 [P] [US2] Unit tests for failure classification in `.specify/extensions/ship/tests/unit/test_classification.py` covering `merge_conflict`, `check_failure`, `precondition`, `permission`, and asserting an undetermined outcome is **not** given a classification
-- [ ] T058 [P] [US2] Unit tests for the repair budget in `.specify/extensions/ship/tests/unit/test_repair_budget.py` — attempts never exceed `limits.repair_budget`, and `0` disables repair entirely
-- [ ] T059 [P] [US2] Integration test for conflict repair in `.specify/extensions/ship/tests/integration/test_conflict_repair.py` against the bare local remote
-- [ ] T060 [P] [US2] Test in `.specify/extensions/ship/tests/unit/test_exit_codes.py` asserting an unresolved checks outcome exits `30`, not `20` — collapsing them re-creates the inference FR-012 exists to prevent
+- [X] T057 [P] [US2] Unit tests for failure classification in `.specify/extensions/ship/tests/unit/test_classification.py` covering `merge_conflict`, `check_failure`, `precondition`, `permission`, and asserting an undetermined outcome is **not** given a classification
+- [X] T058 [P] [US2] Unit tests for the repair budget in `.specify/extensions/ship/tests/unit/test_repair_budget.py` — attempts never exceed `limits.repair_budget`, and `0` disables repair entirely
+- [X] T059 [P] [US2] Integration test for conflict repair in `.specify/extensions/ship/tests/integration/test_conflict_repair.py` against the bare local remote
+- [X] T060 [P] [US2] Test in `.specify/extensions/ship/tests/unit/test_exit_codes.py` asserting an unresolved checks outcome exits `30`, not `20` — collapsing them re-creates the inference FR-012 exists to prevent
 
 ### Implementation for User Story 2
 
-- [ ] T061 [US2] Implement failure classification in `.specify/extensions/ship/scripts/repair.py` into the four classes, reported **before** any repair is attempted (FR-016, Acceptance 2.1)
-- [ ] T062 [US2] Implement mechanical conflict repair in `.specify/extensions/ship/scripts/repair.py` — detect unmergeability before attempting a merge, bring the branch up to date with the target per `pr.merge_method`, resolve, push, re-enter checks. Conflicts needing a semantic choice are handed back, not guessed (FR-018, SC-005)
-- [ ] T063 [US2] Implement the check-failure repair seam in `.specify/extensions/ship/scripts/repair.py` — retrieve the failing log, hand it to the command markdown, and record the model's proposal. Authority `proposed`: **described and awaited, never applied** unattended (Acceptance 2.4)
-- [ ] T064 [US2] Implement budget accounting and halt reporting in `.specify/extensions/ship/scripts/repair.py` — re-enter checks after each attempt, and on exhaustion halt leaving branch and PR intact while reporting every attempt and the residual failure (FR-019, FR-020)
-- [ ] T065 [US2] Extend `.specify/extensions/ship/commands/speckit.ship.md` with the repair-proposal seam — present the failing output and the proposed change, and wait
-- [ ] T066 [US2] Implement the halt report renderer in `.specify/extensions/ship/scripts/ship.py` so the failing stage and specific cause are nameable from the report alone, without opening github.com (SC-004)
+- [X] T061 [US2] Implement failure classification in `.specify/extensions/ship/scripts/repair.py` into the four classes, reported **before** any repair is attempted (FR-016, Acceptance 2.1)
+- [X] T062 [US2] Implement mechanical conflict repair in `.specify/extensions/ship/scripts/repair.py` — detect unmergeability before attempting a merge, bring the branch up to date with the target per `pr.merge_method`, resolve, push, re-enter checks. Conflicts needing a semantic choice are handed back, not guessed (FR-018, SC-005)
+- [X] T063 [US2] Implement the check-failure repair seam in `.specify/extensions/ship/scripts/repair.py` — retrieve the failing log, hand it to the command markdown, and record the model's proposal. Authority `proposed`: **described and awaited, never applied** unattended (Acceptance 2.4)
+- [X] T064 [US2] Implement budget accounting and halt reporting in `.specify/extensions/ship/scripts/repair.py` — re-enter checks after each attempt, and on exhaustion halt leaving branch and PR intact while reporting every attempt and the residual failure (FR-019, FR-020)
+- [X] T065 [US2] Extend `.specify/extensions/ship/commands/speckit.ship.md` with the repair-proposal seam — present the failing output and the proposed change, and wait
+- [X] T066 [US2] Implement the halt report renderer in `.specify/extensions/ship/scripts/ship.py` so the failing stage and specific cause are nameable from the report alone, without opening github.com (SC-004)
 
 **Checkpoint**: quickstart.md Scenarios 5a, 5b and 5c pass.
 

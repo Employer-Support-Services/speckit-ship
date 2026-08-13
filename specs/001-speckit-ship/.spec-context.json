@@ -524,6 +524,86 @@
       "kind": "complete",
       "by": "extension",
       "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T057",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:53:48.458Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T058",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:53:48.458Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T059",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:53:48.458Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T060",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:53:48.458Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T061",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:53:48.458Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T062",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:53:48.458Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T063",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:53:48.458Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T064",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:53:48.458Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T065",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:53:48.458Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T066",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:53:48.458Z"
     }
   ],
   "branch": "main",
@@ -723,5 +803,5 @@
       "summary": "Planned SpecKit Ship as a stdlib-Python SpecKit extension driving git+gh behind one HostingClient seam, writing a Determined<T>-wrapped per-repo state.json that a separate VS Code Ship view reads; two measured findings reshaped it — gh 2.4.0 has no machine-readable `gh pr checks`, and the Companion’s tabs are compiled and closed."
     }
   },
-  "currentTask": "T057"
+  "currentTask": "T067"
 }

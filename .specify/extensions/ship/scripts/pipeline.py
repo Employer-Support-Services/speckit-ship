@@ -19,8 +19,10 @@ from typing import Any, Callable, Dict, Optional
 
 from scripts import config as config_mod
 from scripts import engine, gitops, lock as lock_mod
+from scripts import repair as repair_mod
 from scripts import state as state_mod
 from scripts.engine import GuardError, NothingToShip, StageResult
+from scripts.repair import RepairLedger
 from scripts.stages import checks as checks_stage
 from scripts.stages import cleanup as cleanup_stage
 from scripts.stages import commit as commit_stage
@@ -52,12 +54,16 @@ class Interaction:
         review_pr: Optional[Callable[[Dict[str, Any]], Optional[Dict[str, str]]]] = None,
         draft_pr: Optional[Callable[[Dict[str, Any]], Dict[str, str]]] = None,
         confirm_gate: Optional[Callable[[str, str], Optional[Dict[str, Any]]]] = None,
+        propose_repair: Optional[Callable[[Dict[str, Any]], Optional[Dict[str, str]]]] = None,
         report: Optional[Callable[[str], None]] = None,
     ) -> None:
         self.confirm_commit = confirm_commit
         self.review_pr = review_pr
         self.draft_pr = draft_pr
         self._confirm_gate = confirm_gate
+        # A repair PROPOSAL seam. It returns a description; it never applies
+        # anything. See repair.propose_check_repair — Acceptance 2.4.
+        self.propose_repair = propose_repair
         self.report = report or (lambda _message: None)
 
     def gate(self, stage: str, prompt: str) -> Optional[Dict[str, Any]]:
@@ -166,10 +172,20 @@ def adopt_external_merge(client, run: Dict[str, Any]) -> Optional[Dict[str, Any]
 
 
 class RunOutcome:
-    def __init__(self, exit_code: int, message: str, *, run_id: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        exit_code: int,
+        message: str,
+        *,
+        run_id: Optional[str] = None,
+        retry_from: Optional[str] = None,
+    ) -> None:
         self.exit_code = exit_code
         self.message = message
         self.run_id = run_id
+        # Set when a repair landed and the pipeline should re-enter at a stage
+        # rather than stop. Nothing outside the repair path sets it.
+        self.retry_from = retry_from
 
 
 def execute(
@@ -315,7 +331,11 @@ def _execute_locked(
                 "to the release stage."
             )
 
-    for stage in order[start:]:
+    ledger = RepairLedger(limits.get("repair_budget", 2))
+    index = start
+
+    while index < len(order):
+        stage = order[index]
         outcome = _run_one(
             stage,
             repo_root=repo_root,
@@ -332,10 +352,21 @@ def _execute_locked(
             commit_message=commit_message,
             clock=clock,
             sleeper=sleeper,
+            ledger=ledger,
         )
 
-        if outcome is not None:
-            return outcome
+        if outcome is None:
+            index += 1
+            continue
+
+        # A stage stopped the run. Before accepting that, see whether this is a
+        # class of failure repair can address (FR-019) — and re-enter checks if
+        # a repair lands, rather than halting on a failure we just fixed.
+        if outcome.retry_from is not None:
+            index = order.index(outcome.retry_from)
+            continue
+
+        return outcome
 
     def finish(document: Dict[str, Any]) -> None:
         state_mod.set_complete(state_mod.find_run(document, run_id))
@@ -361,6 +392,7 @@ def _run_one(
     commit_message,
     clock,
     sleeper,
+    ledger,
 ) -> Optional[RunOutcome]:
     """Execute one stage. Returns a RunOutcome to stop, or None to continue."""
     report = interaction.report
@@ -573,8 +605,19 @@ def _run_one(
     _persist_stage_facts(repo_root, run_id, stage, result)
 
     if result.outcome == "failed":
-        _halt(repo_root, run_id, stage, result.classification or "precondition", result.message)
-        return RunOutcome(EXIT_FAILED, result.message or f"{stage} failed.", run_id=run_id)
+        return _handle_failure(
+            stage,
+            result,
+            repo_root=repo_root,
+            run_id=run_id,
+            interaction=interaction,
+            config=config,
+            branch=branch,
+            target=target,
+            remote=remote,
+            ledger=ledger,
+            dry_run=dry_run,
+        )
 
     if result.outcome == "undetermined":
         _halt_undetermined(repo_root, run_id)
@@ -592,6 +635,153 @@ def _run_one(
         )
 
     return None
+
+
+def _handle_failure(
+    stage: str,
+    result: StageResult,
+    *,
+    repo_root: Path,
+    run_id: str,
+    interaction: Interaction,
+    config: Dict[str, Any],
+    branch: str,
+    target: str,
+    remote: str,
+    ledger: "RepairLedger",
+    dry_run: bool,
+) -> RunOutcome:
+    """Classify, report, attempt bounded repair, then halt or re-enter.
+
+    The order is the requirement: the classification is reported **before** any
+    repair is attempted (FR-016, Acceptance 2.1). A developer watching this
+    should learn what broke before the tool starts changing things — not
+    afterwards, and not only if the repair fails.
+    """
+    report = interaction.report
+
+    classification = result.classification or repair_mod.classify(
+        stage=stage,
+        outcome="failed",
+        message=result.message,
+        detail=result.detail,
+    )
+
+    report("")
+    report(f"{stage} failed — classified as {classification}:")
+    report(f"  {repair_mod.describe_classification(classification)}")
+    if result.message:
+        report(f"  {result.message}")
+
+    repairable = classification in ("merge_conflict", "check_failure")
+
+    if dry_run or not repairable or not ledger.can_attempt():
+        if repairable and not ledger.enabled:
+            report("  Repair is disabled (limits.repair_budget is 0).")
+        elif repairable and ledger.exhausted:
+            report(f"  The repair budget of {ledger.budget} is exhausted.")
+        return _halt_with_report(
+            repo_root, run_id, stage, classification, result, ledger, report
+        )
+
+    report("")
+    report(f"Attempting repair {ledger.next_attempt_number()} of {ledger.budget}…")
+
+    if classification == "merge_conflict":
+        outcome = repair_mod.repair_conflict(
+            repo_root,
+            branch=branch,
+            target=target,
+            remote=remote,
+            merge_method=config.get("pr", {}).get("merge_method", "squash"),
+            attempt_number=ledger.next_attempt_number(),
+        )
+    else:
+        outcome = repair_mod.propose_check_repair(
+            _checks_outcome_from(result),
+            proposer=interaction.propose_repair,
+            attempt_number=ledger.next_attempt_number(),
+        )
+
+    if outcome.attempt is not None:
+        ledger.record(outcome.attempt)
+        _record_repair(repo_root, run_id, outcome.attempt)
+
+    report(f"  {outcome.message}")
+
+    if outcome.repaired:
+        # Re-enter checks so the repair is judged by the repository's own
+        # pipeline, not by our belief that it worked (FR-019).
+        _mark_repair_checks(repo_root, run_id, "not_reached")
+        report("  Re-entering the checks stage to see whether that cleared it.")
+        return RunOutcome(EXIT_FAILED, outcome.message, run_id=run_id, retry_from="checks")
+
+    return _halt_with_report(
+        repo_root, run_id, stage, classification, result, ledger, report
+    )
+
+
+def _checks_outcome_from(result: StageResult):
+    """Adapt a recorded stage result back into the shape repair reads."""
+
+    class _Adapter:
+        checks = result.checks or []
+        required_failures = (result.detail or {}).get("required_failures", [])
+        optional_failures = (result.detail or {}).get("optional_failures", [])
+
+    return _Adapter()
+
+
+def _halt_with_report(
+    repo_root: Path,
+    run_id: str,
+    stage: str,
+    classification: Optional[str],
+    result: StageResult,
+    ledger: "RepairLedger",
+    report,
+) -> RunOutcome:
+    """Halt leaving the branch and pull request intact, reporting every attempt (FR-020)."""
+    message = result.message or f"{stage} failed."
+
+    report("")
+    report(ledger.render())
+    report("")
+    report("Halted. The branch and pull request are intact — nothing was rolled back.")
+
+    _halt(repo_root, run_id, stage, classification or "precondition", message)
+
+    full = "\n".join(
+        [
+            f"Halted at {stage}: {classification}",
+            f"  {repair_mod.describe_classification(classification)}",
+            f"  {message}" if message else "",
+            "",
+            ledger.render(),
+        ]
+    )
+    return RunOutcome(EXIT_FAILED, full, run_id=run_id)
+
+
+def _record_repair(repo_root: Path, run_id: str, attempt: Dict[str, Any]) -> None:
+    def mutate(document: Dict[str, Any]) -> None:
+        run = state_mod.find_run(document, run_id)
+        if run is not None:
+            run.setdefault("repairs", []).append(attempt)
+
+    state_mod.update(repo_root, mutate)
+
+
+def _mark_repair_checks(repo_root: Path, run_id: str, verdict: str) -> None:
+    """Update the newest repair attempt with what the subsequent checks did."""
+
+    def mutate(document: Dict[str, Any]) -> None:
+        run = state_mod.find_run(document, run_id)
+        if run and run.get("repairs"):
+            run["repairs"][-1]["subsequent_checks"] = verdict
+            run["repairs"][-1]["ended_at"] = state_mod.now_iso()
+
+    state_mod.update(repo_root, mutate)
 
 
 def _persist_stage_facts(repo_root: Path, run_id: str, stage: str, result: StageResult) -> None:

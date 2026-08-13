@@ -82,7 +82,12 @@ class RecordedClient(HostingClient):
         capabilities: Optional[Dict[str, Any]] = None,
         authenticated: bool = True,
         logs: str = "",
+        # None models the common case: branch protection needs admin scope, so
+        # requiredness usually cannot be read at all. A list models a repository
+        # where it can.
+        required_check_names: Optional[List[str]] = None,
     ) -> None:
+        self._required_check_names = required_check_names
         # A list, consumed in order, so a test can model "UNKNOWN, then
         # MERGEABLE" — the lazy-computation sequence. The last entry repeats
         # once exhausted.
@@ -161,6 +166,21 @@ class RecordedClient(HostingClient):
     def repo_meta(self) -> Result:
         self.calls.append(("repo_meta",))
         return Result.of(self._repo_meta)
+
+    def required_checks(self, branch: str) -> Result:
+        """Which checks branch protection requires on ``branch``.
+
+        An undetermined result is the *common* case, not an error: reading
+        protection usually needs admin scope. Returning an empty list instead
+        would silently mean "nothing is required", which turns a permission gap
+        into a claim about the repository.
+        """
+        self.calls.append(("required_checks", branch))
+        if self._required_check_names is None:
+            return Result.unknown(
+                "gh-failed: branch protection for this branch could not be read"
+            )
+        return Result.of(list(self._required_check_names))
 
     def find_pr(self, branch: str) -> Result:
         self.calls.append(("find_pr", branch))

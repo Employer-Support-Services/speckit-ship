@@ -34,6 +34,8 @@ from scripts import gitops, pipeline, preflight  # noqa: E402
 from scripts import state as state_mod  # noqa: E402
 from scripts.hosting import GhClient  # noqa: E402
 
+VERSION = "0.1.0"
+
 EXIT_OK = 0
 EXIT_REFUSED = 10
 EXIT_FAILED = 20
@@ -103,6 +105,39 @@ def render_profile(profile: preflight.Profile, *, config: Dict[str, Any]) -> str
     lines.append(f"  limits.release_wait   {config['limits']['release_wait_seconds']}s")
     lines.append(f"  limits.repair_budget  {config['limits']['repair_budget']}")
     lines.append(f"  cleanup.delete_branch {config['cleanup']['delete_branch']}")
+
+    return "\n".join(lines)
+
+
+def render_halt(outcome, *, branch: str, target: str) -> str:
+    """The halt report. (T066, SC-004)
+
+    The measure is specific: a developer must be able to name the failing stage
+    and the cause **from this text alone**, without opening github.com. So the
+    exit code is spelled out rather than left as a number, and the distinction
+    between "it failed" and "we do not know" is stated in words — a reader who
+    only skims should not come away thinking an unresolved pipeline was a red
+    one.
+    """
+    meaning = {
+        EXIT_OK: "Complete.",
+        EXIT_REFUSED: "Refused before anything changed.",
+        EXIT_FAILED: "Halted on a failure we can name.",
+        EXIT_UNDETERMINED: (
+            "Halted on an outcome we could NOT determine. This is not a failure "
+            "— it means the run does not know, and it did not guess."
+        ),
+        EXIT_LOCKED: "Refused — another run holds the lock.",
+    }.get(outcome.exit_code, "Halted.")
+
+    lines = ["", "─" * 72, f"exit {outcome.exit_code} — {meaning}", "─" * 72, ""]
+    lines.append(outcome.message)
+    lines.append("")
+
+    if outcome.exit_code in (EXIT_FAILED, EXIT_UNDETERMINED):
+        lines.append(f"The branch {branch!r} and its pull request are intact.")
+        lines.append(f"Nothing was merged into {target!r}, and nothing was rolled back.")
+        lines.append("Re-run /speckit-ship to resume from here once the cause is addressed.")
 
     return "\n".join(lines)
 
@@ -315,6 +350,12 @@ def build_parser() -> argparse.ArgumentParser:
         description="Ship a branch: commit, publish, PR, checks, merge, release, cleanup.",
     )
     parser.add_argument("--root", type=Path, default=None, help=argparse.SUPPRESS)
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"speckit-ship {VERSION}",
+        help="Print the extension version and exit",
+    )
 
     sub = parser.add_subparsers(dest="command")
 
@@ -512,8 +553,11 @@ def cmd_ship(args: argparse.Namespace) -> int:
         from_stage=args.from_stage,
     )
 
-    print()
-    print(outcome.message)
+    if outcome.exit_code == EXIT_OK:
+        print()
+        print(outcome.message)
+    else:
+        print(render_halt(outcome, branch=branch, target=target))
     return outcome.exit_code
 
 

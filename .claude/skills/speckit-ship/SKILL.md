@@ -13,7 +13,7 @@ Carry the current branch from working copy to confirmed release and back to a
 clean, updated integration branch.
 
 The pipeline is deterministic and lives in Python. **This command owns exactly
-two things** — drafting a pull-request description, and (later) proposing a
+two things** — drafting a pull-request description, and proposing a
 check-failure repair. Everything else is the engine's, so it can be tested.
 Do not reimplement stage logic here.
 
@@ -59,7 +59,7 @@ first state-changing action, then runs the stages in order.
 answers. Reporting an unresolved checks outcome as a failure is merely wrong;
 reporting it as a pass would merge on a pipeline that never reported.
 
-## Your two responsibilities
+## Your responsibilities
 
 ### 1. Drafting a pull-request description (FR-010)
 
@@ -71,7 +71,31 @@ engine will not create a PR from a drafted description that was not shown.
 Write what changed and why. No invented context, no claims about testing you did
 not verify, no filler.
 
-### 2. Reporting the outcome
+### 2. Proposing a repair for a failing check (FR-019, Acceptance 2.4)
+
+When the run halts at `checks` with classification `check_failure`, the engine
+prints the failing check's **own log excerpt**. That output is the seam: read it
+and propose a specific fix.
+
+**Describe the change. Do not apply it.** Not "shall I apply this?" followed by
+applying it in the same turn — propose, then stop and wait. The engine records
+your proposal with authority `proposed` and no commit SHA, which is the record
+saying plainly that nothing landed.
+
+A proposal should name the file and what to change, and say what you concluded
+from the log. If the log was not retrievable, the engine says so — in that case
+say you cannot propose a fix rather than guessing from the check's name.
+
+**Never "repair" a check by weakening it.** Deleting the assertion, loosening the
+threshold, marking the test skipped, or adding a retry to hide a flake makes the
+pipeline green and the software worse. If the honest answer is that the code is
+wrong, say the code is wrong.
+
+The repair budget is small on purpose (default 2, `0` disables it). When it is
+exhausted the run halts and lists every attempt. Do not re-run the command to
+get more attempts.
+
+### 3. Reporting the outcome
 
 Relay what the engine reported. In particular:
 
