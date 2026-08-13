@@ -1,0 +1,727 @@
+{
+  "workflow": "speckit",
+  "specName": "SpecKit Ship",
+  "selectedAt": "2026-08-12T15:54:32.919Z",
+  "currentStep": "implement",
+  "status": "implementing",
+  "history": [
+    {
+      "step": "specify",
+      "substep": null,
+      "kind": "start",
+      "by": "extension",
+      "at": "2026-08-12T15:54:32.919Z"
+    },
+    {
+      "step": "specify",
+      "substep": null,
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-08-12T16:12:29.591Z"
+    },
+    {
+      "step": "plan",
+      "substep": null,
+      "kind": "start",
+      "by": "extension",
+      "at": "2026-08-12T17:11:08.561Z"
+    },
+    {
+      "step": "plan",
+      "substep": "research",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-08-12T17:16:28Z"
+    },
+    {
+      "step": "plan",
+      "substep": "design",
+      "kind": "complete",
+      "by": "ai",
+      "at": "2026-08-12T17:21:28Z"
+    },
+    {
+      "step": "plan",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-12T17:22:25.690Z"
+    },
+    {
+      "step": "tasks",
+      "substep": null,
+      "kind": "start",
+      "by": "ai",
+      "at": "2026-08-12T17:46:31Z"
+    },
+    {
+      "step": "tasks",
+      "substep": null,
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-12T17:49:42.958Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T001",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T002",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T003",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T004",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T005",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T006",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T007",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T008",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T009",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T010",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T011",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T012",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T013",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T014",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T015",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T016",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T017",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T018",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T019",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T020",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T021",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T022",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T023",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T024",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T025",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T026",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T027",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T028",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T029",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T030",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T031",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T032",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T033",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T034",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T035",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T036",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T037",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T038",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T039",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T040",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T041",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T042",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T043",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T044",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T045",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T046",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T047",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T048",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T049",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T050",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T051",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T052",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T053",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T054",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T055",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T056",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T075",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T086",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T14:18:13.224Z"
+    }
+  ],
+  "branch": "main",
+  "intent": "Give any repository a single repo-agnostic ship command that carries a branch from working copy to confirmed release and back to a clean, up-to-date integration branch, plus a Companion Ship tab that reports that pipeline's real state.",
+  "coverage": {
+    "FR-001": {
+      "title": "Detect whether the working directory is inside a version-controlled repository before acting"
+    },
+    "FR-002": {
+      "title": "Detect the integration branch from repository configuration, under any name"
+    },
+    "FR-003": {
+      "title": "Ask and remember when the integration branch is ambiguous"
+    },
+    "FR-004": {
+      "title": "Verify remote, reachability, and credential scope before changing state"
+    },
+    "FR-005": {
+      "title": "Refuse to run from the integration branch, detached HEAD, or an unfinished rebase/merge"
+    },
+    "FR-006": {
+      "title": "Present a preflight summary of the detected profile and intended actions"
+    },
+    "FR-007": {
+      "title": "Stage and commit outstanding work, showing what will be committed first"
+    },
+    "FR-008": {
+      "title": "Publish the branch to the configured remote and establish tracking"
+    },
+    "FR-009": {
+      "title": "Open a pull request into the target branch, adopting an existing one instead of duplicating"
+    },
+    "FR-010": {
+      "title": "Compose the PR title and body per the configured mode, drafted descriptions reviewed first"
+    },
+    "FR-011": {
+      "title": "Wait for automated checks with progress reporting and a bounded wait limit"
+    },
+    "FR-012": {
+      "title": "Treat an undetermined checks outcome as unresolved and never merge on it"
+    },
+    "FR-013": {
+      "title": "Require explicit developer confirmation before merge and before release"
+    },
+    "FR-014": {
+      "title": "Release only after merge, reporting release outcome distinctly from merge outcome"
+    },
+    "FR-015": {
+      "title": "Never report a release as complete based on the merge alone"
+    },
+    "FR-016": {
+      "title": "Classify failures as conflict, check failure, precondition failure, or unresolved"
+    },
+    "FR-017": {
+      "title": "Retrieve and present the failing check's own output"
+    },
+    "FR-018": {
+      "title": "Detect an unmergeable branch before merging, update from target, resolve, re-check"
+    },
+    "FR-019": {
+      "title": "Attempt repairs within a bounded budget, re-entering checks after each"
+    },
+    "FR-020": {
+      "title": "On halt, leave branch and PR intact and report every attempt and the remaining failure"
+    },
+    "FR-021": {
+      "title": "Resume from the furthest stage reached rather than restarting or duplicating"
+    },
+    "FR-022": {
+      "title": "Detect and refuse a second concurrent run against the same branch"
+    },
+    "FR-023": {
+      "title": "Delete the branch locally and remotely only after confirmed merge; report a refused deletion"
+    },
+    "FR-024": {
+      "title": "Switch to the integration branch and update it from the remote as the final stage"
+    },
+    "FR-025": {
+      "title": "Never delete a branch with unmerged commits; report them instead"
+    },
+    "FR-026": {
+      "title": "Record each run's stages, outcomes, and timings to a per-repository state file"
+    },
+    "FR-027": {
+      "title": "Stamp every recorded value with its capture time"
+    },
+    "FR-028": {
+      "title": "Record an explicit undetermined marker with a reason instead of an inferred value"
+    },
+    "FR-029": {
+      "title": "Tolerate a missing, unreadable, or incompatible state file without aborting the run"
+    },
+    "FR-030": {
+      "title": "Ship tab shows local, published, PR, checks, release, and changelog state"
+    },
+    "FR-031": {
+      "title": "Ship tab shows the capture time alongside every value"
+    },
+    "FR-032": {
+      "title": "Ship tab renders undetermined state as undetermined, never as a placeholder"
+    },
+    "FR-033": {
+      "title": "Ship tab shows an explicit empty state distinguishable from a zero value"
+    },
+    "FR-034": {
+      "title": "Ship tab marks stale state and offers a refresh"
+    },
+    "FR-035": {
+      "title": "Ship tab reflects in-progress stage changes without an editor restart"
+    },
+    "FR-036": {
+      "title": "Ship tab renders unbacked controls as visibly disabled with the reason stated"
+    },
+    "FR-037": {
+      "title": "Developers can set source and target branch; runs honor the saved values"
+    },
+    "FR-038": {
+      "title": "Developers can choose manual, commit-assembled, or auto-drafted PR descriptions"
+    },
+    "FR-039": {
+      "title": "Developers choose observed or executed release mode for the repository"
+    },
+    "FR-040": {
+      "title": "Validate configuration on save, name the problem, retain the previous configuration"
+    },
+    "FR-041": {
+      "title": "Store ship configuration per repository, travelling with the repo"
+    },
+    "FR-042": {
+      "title": "Keep pipeline and Ship tab separable, each degrading honestly without the other"
+    },
+    "FR-043": {
+      "title": "Preflight detects the release mode, asking once and recording it when undeterminable"
+    },
+    "FR-044": {
+      "title": "Observed mode watches the repo's release path; no confirmation within the limit is undetermined"
+    },
+    "FR-045": {
+      "title": "Executed mode runs the configured release action and reports a failed release as such"
+    }
+  },
+  "expectations": [
+    "Hosting services other than GitHub — the description names GitHub explicitly",
+    "Obtaining, storing, or rotating hosting-service credentials",
+    "Configuring or authoring the repository's automated checks — the tool consumes whatever already reports",
+    "Bypassing branch protection, required reviews, or required signatures",
+    "Serializing concurrent ship runs — a second run is refused, not queued",
+    "Repositories whose integration branch feeds several independent release targets — reported as unsupported, not partially released",
+    "A persistent always-yes setting for merge and release — unattended authorization is per-run only"
+  ],
+  "context": [
+    "Repository discovery: branch names, remotes, and release paths vary per repo, so nothing may be assumed",
+    "Safety posture: merge and release are outward-facing and hard to reverse, so both are gated",
+    "Truthful state: every value the Ship tab shows must trace to recorded state or be labeled undetermined",
+    "SpecKit Companion tab conventions — the Ship tab follows the existing per-repository JSON state-file pattern",
+    "Bounded automatic repair: unbounded auto-fixing on a shared branch is unsafe, so the budget is small and configurable",
+    "Resumability: a partially completed run leaves a published branch and open PR that a re-run must adopt",
+    "Release mode resolved by user decision: detect per repository, support both observed and executed",
+    "Feature scope resolved by user decision: pipeline and Ship tab both in scope, tab prioritized last and kept separable"
+  ],
+  "telemetryInstanceId": "856ec732-98c2-4512-99fc-152290fa4392",
+  "approach": "Ship the pipeline as a SpecKit extension package at .specify/extensions/ship/ mirroring the installed Companion's shape, with all deterministic stages in a Python 3 stdlib engine and command markdown owning only the two AI steps (drafting a PR description, proposing a check-failure repair). GitHub is reached through the gh CLI behind one HostingClient seam, with a preflight capability probe instead of version trust. The engine writes a per-repository state.json that a separate VS Code extension reads and never writes, making the pipeline and the Ship view genuinely separable.",
+  "decisions": [
+    {
+      "decision": "Read PR checks by polling `gh pr view --json statusCheckRollup`, never `gh pr checks`",
+      "why": "Measured on the installed gh 2.4.0: `gh pr checks` accepts only -w/--web — no --json, no --watch. Those flags arrived in far later releases. `gh pr view --json` does list statusCheckRollup, mergeable, mergeStateStatus and mergeCommit, so one call serves checks, mergeability and the merge SHA.",
+      "rejected": "Building on `gh pr checks --json --watch`, which would have failed on the very machine this plan was written on; and calling the GitHub REST/GraphQL API directly, which would force this feature to hold a token the spec puts out of scope."
+    },
+    {
+      "decision": "Deliver the Ship surface as a separate VS Code extension contributing a view into the SpecKit activity-bar container, not as a tab inside SpecKit Companion",
+      "why": "alfredoperez.speckit-companion@0.31.1 declares four views and no extension point, and its spec-detail tabs are compiled strings inside dist/webview/spec-viewer.js. Those tabs are also scoped to a single spec while ship state is per-repository, so even with an extension point the tab bar would be the wrong home. The spec says the tab sits alongside the existing Companion views, and those are sidebar views.",
+      "rejected": "Forking the Companion (would make our pipeline depend on shipping a competing build of someone else’s extension) and waiting on an upstream PR (timeline outside our control, and FR-042 wants separability regardless). Whether VS Code renders a view contributed into another extension’s container is UNVERIFIED — no precedent among extensions installed on this machine — so a spike leads that phase and the fallback is our own container."
+    },
+    {
+      "decision": "Wrap every observed value in state.json as Determined<T> — {value, determined, captured_at, source} or {value:null, determined:false, captured_at, reason} — and reject determined:false with a non-null value on write",
+      "why": "FR-027 (capture time on every value) and FR-028 (no inferred value) become structural rather than per-field discipline, and SC-007 (no placeholder anywhere on the Ship view) becomes machine-checkable instead of a matter of inspection. Configuration is deliberately NOT wrapped: a config value is a human’s stated intent, not an observation.",
+      "rejected": "Bare values with a sibling *_at timestamp field — the first field somebody forgets to stamp is invisible and reads as established fact, which is exactly the failure this feature exists to prevent."
+    },
+    {
+      "decision": "Split persistence: config.json committed, state.json and ship.lock gitignored",
+      "why": "FR-041 requires settings to travel with the repository, so config must be committed. Run state must not be: a state.json rewritten on every ship would conflict on every merge into the integration branch, making the tool harder to use the more it is used. .specify/.gitignore already carries this exact distinction for feature.json and local-config.yml.",
+      "rejected": "One combined file (the two halves have opposite sharing requirements); state under .git/ (survives no clone); state in the home directory keyed by repo path (breaks when the checkout moves, and the view would have to reproduce the keying)."
+    },
+    {
+      "decision": "Correlate releases to merges by merge commit SHA, and require a non-empty `evidence` field on any release record claiming outcome:released",
+      "why": "FR-015 and SC-012 forbid ever reporting a release from a merge alone. Making evidence a required, non-empty schema field means the writer physically cannot record a release it did not observe. SHA correlation also survives the named edge case of a release queued behind other releases, where time-proximity matching would attach the wrong run.",
+      "rejected": "Correlating by timestamp proximity (wrong run under queueing) and inferring the release from a successful merge (the single hardest line in the spec)."
+    },
+    {
+      "decision": "Resumption re-verifies the last succeeded stage against the world before trusting the journal, and distinguishes exit code 20 (classified failure) from 30 (undetermined)",
+      "why": "Recorded state can be wrong — the developer may have merged the PR in the web UI between runs. Trusting the journal alone would let a run skip a stage that never happened, breaking SC-008. Separate exit codes matter because a caller that collapses failed and undetermined re-creates the exact inference FR-012 exists to prevent.",
+      "rejected": "Trusting the journal without re-verification; and re-deriving everything from GitHub with no journal, which loses the run history and timings FR-026 needs for the changelog."
+    }
+  ],
+  "step_summaries": {
+    "plan": {
+      "summary": "Planned SpecKit Ship as a stdlib-Python SpecKit extension driving git+gh behind one HostingClient seam, writing a Determined<T>-wrapped per-repo state.json that a separate VS Code Ship view reads; two measured findings reshaped it — gh 2.4.0 has no machine-readable `gh pr checks`, and the Companion’s tabs are compiled and closed."
+    }
+  },
+  "currentTask": "T057"
+}

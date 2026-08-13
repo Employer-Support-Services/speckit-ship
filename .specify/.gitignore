@@ -1,0 +1,18 @@
+# Machine-local Spec Kit state — not meant to be shared.
+# Managed by the Specify CLI; safe to edit (your changes are preserved on refresh).
+
+# Local pointer to the current feature directory. Rewritten every time you
+# switch features, so it is per-checkout state rather than something to share.
+feature.json
+
+# Per-machine extension config overrides.
+extensions/*/local-config.yml
+
+# Ship run history and its concurrency lock. Deliberately NOT shared: state.json
+# is rewritten on every ship, so committing it would conflict on every merge into
+# the integration branch — a tool that gets harder to use the more you use it.
+# Ship *configuration* (extensions/ship/config.json) is committed, by contrast,
+# because settings are meant to travel with the repository (FR-041).
+extensions/ship/state.json
+extensions/ship/state.json.corrupt-*
+extensions/ship/ship.lock

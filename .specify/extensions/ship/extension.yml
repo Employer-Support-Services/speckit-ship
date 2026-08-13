@@ -1,0 +1,42 @@
+schema_version: "1.0"
+
+extension:
+  id: ship
+  name: "SpecKit Ship"
+  version: "0.1.0"
+  description: "Repo-agnostic ship pipeline — commit, publish, PR, checks, merge, release, cleanup, with every outcome recorded or explicitly undetermined."
+  author: teamteddy
+  repository: https://github.com/EmployerSupportServices/speckit-ship
+  homepage: https://github.com/EmployerSupportServices/speckit-ship
+  license: MIT
+
+requires:
+  # Same floor as the Companion, and for the same reason: the `.dev0` suffix is
+  # load-bearing. PEP 440 sorts a dev build BELOW its final, so a bare `>=0.9.5`
+  # rejects exactly the git/`uv` installs this floor means to admit.
+  speckit_version: ">=0.9.5.dev0"
+  tools:
+    - name: python3
+      required: false
+
+provides:
+  commands:
+    - name: speckit.ship
+      file: commands/speckit.ship.md
+      description: "Ship the current branch — commit, publish, PR, checks, merge, release, cleanup, resuming an in-progress run rather than restarting it"
+    - name: speckit.ship.preflight
+      file: commands/speckit.ship.preflight.md
+      description: "Report the repository profile — integration branch and which source answered, remote, hosting capabilities, checks, release mode. Changes nothing"
+    - name: speckit.ship.status
+      file: commands/speckit.ship.status.md
+      description: "Render recorded ship state as text; --json emits the state document verbatim. Read-only"
+    - name: speckit.ship.config
+      file: commands/speckit.ship.config.md
+      description: "Show, set, and validate ship configuration, applying the same validation the Ship view applies"
+
+# No `hooks:` block, deliberately.
+#
+# Shipping is not a spec-lifecycle step. Registering an after_implement hook here
+# would fire a merge-and-release pipeline as a side effect of finishing a task
+# list, which is precisely the class of unrequested outward-facing action the
+# confirmation gates (FR-013) exist to prevent. Ship is always invoked directly.

@@ -1,0 +1,48 @@
+{
+  "baseRefName": "trunk",
+  "headRefName": "feature/fixture-5002",
+  "mergeCommit": null,
+  "mergeStateStatus": "CLEAN",
+  "mergeable": "MERGEABLE",
+  "number": 5002,
+  "state": "OPEN",
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "name": "build",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "startedAt": "2026-08-13T00:26:32Z",
+      "completedAt": "2026-08-13T00:26:42Z",
+      "detailsUrl": "https://github.com/acme/thing/actions/runs/1/job/1"
+    },
+    {
+      "__typename": "CheckRun",
+      "name": "unit-tests",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "startedAt": "2026-08-13T00:26:32Z",
+      "completedAt": "2026-08-13T00:26:42Z",
+      "detailsUrl": "https://github.com/acme/thing/actions/runs/1/job/1"
+    },
+    {
+      "__typename": "CheckRun",
+      "name": "optional-coverage-upload",
+      "status": "COMPLETED",
+      "conclusion": "FAILURE",
+      "startedAt": "2026-08-13T00:26:32Z",
+      "completedAt": "2026-08-13T00:26:42Z",
+      "detailsUrl": "https://github.com/acme/thing/actions/runs/1/job/1"
+    },
+    {
+      "__typename": "CheckRun",
+      "name": "optional-preview-deploy",
+      "status": "COMPLETED",
+      "conclusion": "FAILURE",
+      "startedAt": "2026-08-13T00:26:32Z",
+      "completedAt": "2026-08-13T00:26:42Z",
+      "detailsUrl": "https://github.com/acme/thing/actions/runs/1/job/1"
+    }
+  ],
+  "url": "https://github.com/acme/thing/pull/5002"
+}

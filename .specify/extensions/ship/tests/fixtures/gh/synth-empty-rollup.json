@@ -1,0 +1,11 @@
+{
+  "baseRefName": "trunk",
+  "headRefName": "feature/fixture-5003",
+  "mergeCommit": null,
+  "mergeStateStatus": "CLEAN",
+  "mergeable": "MERGEABLE",
+  "number": 5003,
+  "state": "OPEN",
+  "statusCheckRollup": [],
+  "url": "https://github.com/acme/thing/pull/5003"
+}

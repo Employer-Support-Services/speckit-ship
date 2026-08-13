@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://speckit.dev/schemas/ship-state/1.json",
+  "title": "SpecKit Ship State",
+  "description": "Per-repository ship run state. Written only by the ship pipeline; read by the Ship view and by /speckit-ship-status. Gitignored — see research.md R7. Every observed value is wrapped in Determined<T> so that FR-027 (capture time) and FR-028 (no inferred value) hold structurally rather than by convention.",
+  "type": "object",
+  "required": ["schema_version", "profile", "runs"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Readers tolerate an unknown value by degrading to read-only; they never abort a ship run over it (FR-029)."
+    },
+    "generator": {
+      "type": "object",
+      "properties": {
+        "extension": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "profile": { "$ref": "#/$defs/repositoryProfile" },
+    "runs": {
+      "type": "array",
+      "description": "Newest last. Append-only; a run's own stages and terminal fields are the only mutable parts.",
+      "items": { "$ref": "#/$defs/shipRun" }
+    }
+  },
+  "$defs": {
+    "isoTimestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601, UTC, second precision."
+    },
+
+    "determined": {
+      "description": "A value the tool actually observed, or an explicit statement that it could not. determined:false with a non-null value is invalid — that pairing is exactly what FR-028 forbids, and rejecting it on write is what makes SC-007 checkable.",
+      "type": "object",
+      "required": ["determined", "captured_at"],
+      "oneOf": [
+        {
+          "properties": {
+            "determined": { "const": true },
+            "value": {},
+            "captured_at": { "$ref": "#/$defs/isoTimestamp" },
+            "source": {
+              "type": "string",
+              "description": "How the value was obtained: git-symbolic-ref | gh-repo-view | git-remote-show | config | user-answer | workflow-trigger | gh-pr-view | gh-run-view"
+            }
+          },
+          "required": ["determined", "value", "captured_at", "source"],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "determined": { "const": false },
+            "value": { "type": "null" },
+            "captured_at": { "$ref": "#/$defs/isoTimestamp" },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Machine token plus human sentence, e.g. 'no-checks-configured: the repository reports no checks against this pull request'."
+            }
+          },
+          "required": ["determined", "value", "captured_at", "reason"],
+          "additionalProperties": false
+        }
+      ]
+    },
+
+    "repositoryProfile": {
+      "type": "object",
+      "required": ["is_repository", "verified_at"],
+      "additionalProperties": true,
+      "properties": {
+        "is_repository": { "$ref": "#/$defs/determined" },
+        "root": { "$ref": "#/$defs/determined" },
+        "remote": { "$ref": "#/$defs/determined" },
+        "integration_branch": { "$ref": "#/$defs/determined" },
+        "integration_branch_candidates": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Non-empty only when detection was ambiguous; drives the FR-003 one-time prompt."
+        },
+        "hosting": { "$ref": "#/$defs/determined" },
+        "has_checks": { "$ref": "#/$defs/determined" },
+        "release_mode": { "$ref": "#/$defs/determined" },
+        "release_evidence": { "type": ["string", "null"] },
+        "multi_target": { "$ref": "#/$defs/determined" },
+        "verified_at": { "$ref": "#/$defs/isoTimestamp" }
+      }
+    },
+
+    "shipRun": {
+      "type": "object",
+      "required": ["run_id", "branch", "target_branch", "status", "stages", "started_at"],
+      "additionalProperties": true,
+      "properties": {
+        "run_id": { "type": "string" },
+        "branch": { "type": "string" },
+        "target_branch": { "type": "string" },
+        "head_sha": { "type": ["string", "null"] },
+        "pr": {
+          "type": ["object", "null"],
+          "required": ["number", "url", "state"],
+          "properties": {
+            "number": { "type": "integer" },
+            "url": { "type": "string" },
+            "state": { "enum": ["OPEN", "CLOSED", "MERGED"] },
+            "base": { "type": "string" },
+            "head": { "type": "string" }
+          }
+        },
+        "merge_commit_sha": {
+          "type": ["string", "null"],
+          "description": "The correlation key between a merge and a release. Release records are matched on this, never on time proximity (research.md R6)."
+        },
+        "stages": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/stageOutcome" }
+        },
+        "repairs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/repairAttempt" }
+        },
+        "status": { "enum": ["in_progress", "halted", "complete"] },
+        "halt_reason": {
+          "type": ["object", "null"],
+          "required": ["classification", "message", "stage"],
+          "properties": {
+            "classification": { "$ref": "#/$defs/failureClassification" },
+            "message": { "type": "string" },
+            "stage": { "$ref": "#/$defs/stageName" }
+          }
+        },
+        "started_at": { "$ref": "#/$defs/isoTimestamp" },
+        "ended_at": { "oneOf": [{ "$ref": "#/$defs/isoTimestamp" }, { "type": "null" }] }
+      }
+    },
+
+    "stageName": {
+      "enum": ["preflight", "commit", "publish", "pull_request", "checks", "merge", "release", "cleanup"]
+    },
+
+    "failureClassification": {
+      "enum": ["merge_conflict", "check_failure", "precondition", "permission"],
+      "description": "FR-016. An undetermined outcome is not a classification — it is a separate stage outcome."
+    },
+
+    "stageOutcome": {
+      "type": "object",
+      "required": ["stage", "outcome", "started_at"],
+      "additionalProperties": true,
+      "properties": {
+        "stage": { "$ref": "#/$defs/stageName" },
+        "outcome": { "enum": ["succeeded", "failed", "skipped", "undetermined", "in_progress"] },
+        "classification": {
+          "oneOf": [{ "$ref": "#/$defs/failureClassification" }, { "type": "null" }]
+        },
+        "reason": {
+          "type": ["string", "null"],
+          "description": "Required when outcome is 'undetermined' or 'skipped' (FR-028)."
+        },
+        "detail": { "type": ["object", "null"] },
+        "checks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/checkResult" }
+        },
+        "release": {
+          "oneOf": [{ "$ref": "#/$defs/releaseRecord" }, { "type": "null" }]
+        },
+        "confirmation": {
+          "oneOf": [{ "$ref": "#/$defs/confirmation" }, { "type": "null" }],
+          "description": "Mandatory on the 'merge' and 'release' stages (FR-013, SC-006)."
+        },
+        "started_at": { "$ref": "#/$defs/isoTimestamp" },
+        "ended_at": { "oneOf": [{ "$ref": "#/$defs/isoTimestamp" }, { "type": "null" }] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "outcome": { "const": "failed" } }, "required": ["outcome"] },
+          "then": { "required": ["classification"], "properties": { "classification": { "$ref": "#/$defs/failureClassification" } } }
+        },
+        {
+          "if": { "properties": { "outcome": { "enum": ["undetermined", "skipped"] } }, "required": ["outcome"] },
+          "then": { "required": ["reason"], "properties": { "reason": { "type": "string", "minLength": 1 } } }
+        },
+        {
+          "if": {
+            "properties": {
+              "stage": { "enum": ["merge", "release"] },
+              "outcome": { "enum": ["succeeded", "failed"] }
+            },
+            "required": ["stage", "outcome"]
+          },
+          "then": { "required": ["confirmation"], "properties": { "confirmation": { "$ref": "#/$defs/confirmation" } } }
+        }
+      ]
+    },
+
+    "confirmation": {
+      "type": "object",
+      "description": "Per-run authorization. scope is const 'run' by design — the spec excludes a persistent always-yes setting, so the schema gives it nowhere to live.",
+      "required": ["granted_by", "granted_at", "scope"],
+      "additionalProperties": false,
+      "properties": {
+        "granted_by": { "type": "string" },
+        "granted_at": { "$ref": "#/$defs/isoTimestamp" },
+        "scope": { "const": "run" },
+        "prompt": { "type": "string" }
+      }
+    },
+
+    "checkResult": {
+      "type": "object",
+      "required": ["name", "outcome", "captured_at"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string" },
+        "required": {
+          "$ref": "#/$defs/determined",
+          "description": "Undetermined when branch protection cannot be read — an optional-looking failure may in fact be required."
+        },
+        "outcome": {
+          "enum": ["success", "failure", "pending", "skipped", "neutral", "cancelled", "timed_out"]
+        },
+        "url": { "type": ["string", "null"] },
+        "log_excerpt": {
+          "type": ["string", "null"],
+          "description": "Retrieved failing output (FR-017), truncated with an explicit marker."
+        },
+        "captured_at": { "$ref": "#/$defs/isoTimestamp" }
+      }
+    },
+
+    "releaseRecord": {
+      "type": "object",
+      "description": "Written only from the release path's own confirmation. 'evidence' is required and non-empty even for outcome 'released' — this is the schema-level expression of FR-015 and SC-012, the one thing the tool must never be able to say untruthfully.",
+      "required": ["mode", "from_merge_sha", "outcome", "evidence", "confirmed_at"],
+      "additionalProperties": true,
+      "properties": {
+        "mode": { "enum": ["observed", "executed"] },
+        "from_merge_sha": { "type": "string", "minLength": 7 },
+        "identifier": { "type": ["string", "null"] },
+        "outcome": {
+          "enum": ["released", "failed", "undetermined"],
+          "description": "'failed' means the release ran and failed, leaving the integration branch ahead of production (FR-045) — distinct from a run that never reached this stage."
+        },
+        "evidence": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "#/$defs/isoTimestamp" }
+      }
+    },
+
+    "repairAttempt": {
+      "type": "object",
+      "required": ["attempt", "targets", "authority", "description", "started_at"],
+      "additionalProperties": true,
+      "properties": {
+        "attempt": { "type": "integer", "minimum": 1 },
+        "targets": { "enum": ["merge_conflict", "check_failure"] },
+        "authority": {
+          "enum": ["mechanical", "proposed"],
+          "description": "'proposed' was described and awaited, not applied (Acceptance Scenario 2.4)."
+        },
+        "description": { "type": "string" },
+        "pushed_sha": { "type": ["string", "null"] },
+        "subsequent_checks": { "enum": ["cleared", "still_failing", "undetermined", "not_reached"] },
+        "started_at": { "$ref": "#/$defs/isoTimestamp" },
+        "ended_at": { "oneOf": [{ "$ref": "#/$defs/isoTimestamp" }, { "type": "null" }] }
+      }
+    }
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://speckit.dev/schemas/ship-config/1.json",
+  "title": "SpecKit Ship Configuration",
+  "description": "Per-repository ship settings. Committed, so settings travel with the repository (FR-041). Values here are a human's stated intent, not observations, so they are NOT wrapped in Determined<T> — a config value is present or absent.",
+  "type": "object",
+  "required": ["schema_version"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+
+    "source_branch": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "null means 'the branch currently checked out' (FR-037)."
+    },
+    "target_branch": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "null means 'detect per the research.md R4 precedence'. Never defaults to 'main' (FR-002)."
+    },
+    "remote": { "type": "string", "default": "origin" },
+
+    "pr": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "composition": {
+          "enum": ["manual", "commits", "drafted"],
+          "default": "commits",
+          "description": "FR-038. 'drafted' output is presented for review before the PR is created (FR-010)."
+        },
+        "merge_method": {
+          "enum": ["squash", "merge", "rebase"],
+          "default": "squash",
+          "description": "Must be a method the repository permits. When that cannot be checked, the control renders disabled with the reason rather than being saved optimistically (FR-036)."
+        },
+        "title_template": { "type": ["string", "null"], "default": null },
+        "draft": { "type": "boolean", "default": false }
+      }
+    },
+
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": ["observed", "executed", "none", null],
+          "default": null,
+          "description": "null means 'detect at preflight per research.md R6' (FR-039, FR-043)."
+        },
+        "action": {
+          "type": ["object", "null"],
+          "default": null,
+          "description": "Required when mode is 'executed'. The repository declares the action; the tool never composes or infers one (spec Assumptions).",
+          "oneOf": [
+            {
+              "required": ["workflow"],
+              "additionalProperties": false,
+              "properties": {
+                "workflow": { "type": "string", "description": "Workflow filename for `gh workflow run`." },
+                "ref": { "type": "string" },
+                "inputs": { "type": "object" }
+              }
+            },
+            {
+              "required": ["release"],
+              "additionalProperties": false,
+              "properties": {
+                "release": {
+                  "type": "object",
+                  "properties": {
+                    "tag_from": { "enum": ["version-file", "commit-message", "explicit"] },
+                    "tag": { "type": "string" },
+                    "generate_notes": { "type": "boolean", "default": true }
+                  }
+                }
+              }
+            },
+            {
+              "required": ["script"],
+              "additionalProperties": false,
+              "properties": {
+                "script": { "type": "string", "description": "Repository-relative path to an executable the repository declares as its release action." }
+              }
+            }
+          ]
+        },
+        "observed_workflow": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "Optional pin for observed mode when several workflows trigger on the integration branch."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "mode": { "const": "executed" } }, "required": ["mode"] },
+          "then": {
+            "required": ["action"],
+            "properties": { "action": { "type": "object" } }
+          }
+        }
+      ]
+    },
+
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "checks_wait_seconds": { "type": "integer", "minimum": 60, "maximum": 86400, "default": 1800 },
+        "release_wait_seconds": { "type": "integer", "minimum": 60, "maximum": 86400, "default": 1800 },
+        "repair_budget": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "default": 2,
+          "description": "0 disables automatic repair. Small by default because unbounded repair on a shared branch is unsafe (spec Assumptions)."
+        },
+        "freshness_seconds": {
+          "type": "integer",
+          "minimum": 60,
+          "maximum": 86400,
+          "default": 900,
+          "description": "State older than this renders as stale, with a refresh affordance (FR-034)."
+        }
+      }
+    },
+
+    "cleanup": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "delete_branch": { "type": "boolean", "default": true },
+        "return_to_integration": { "type": "boolean", "default": true }
+      }
+    }
+  }
+}
