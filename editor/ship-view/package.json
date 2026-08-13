@@ -1,0 +1,50 @@
+{
+  "name": "speckit-ship-companion",
+  "displayName": "SpecKit Ship",
+  "description": "Reports what the SpecKit ship pipeline actually did — every value with its capture time, and anything undetermined shown as undetermined.",
+  "version": "0.1.0",
+  "publisher": "teamteddy",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Employer-Support-Services/speckit-ship" },
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other", "SCM Providers"],
+  "activationEvents": ["workspaceContains:**/.specify/extensions/ship/state.json"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "speckitShip",
+          "title": "SpecKit Ship",
+          "icon": "media/ship.svg"
+        }
+      ]
+    },
+    "views": {
+      "speckitShip": [
+        { "id": "speckit.views.ship", "name": "Ship", "type": "webview" }
+      ]
+    },
+    "commands": [
+      { "command": "speckit.ship.refresh", "title": "Ship: Refresh", "icon": "$(refresh)" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "speckit.ship.refresh", "when": "view == speckit.views.ship", "group": "navigation" }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

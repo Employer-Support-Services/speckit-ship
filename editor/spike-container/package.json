@@ -1,0 +1,23 @@
+{
+  "name": "speckit-ship-spike-container",
+  "displayName": "Spike S1 — cross-extension viewsContainer",
+  "description": "Throwaway probe: does a view contributed into ANOTHER extension's viewsContainer render? Not shipped.",
+  "version": "0.0.0",
+  "private": true,
+  "publisher": "spike",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "activationEvents": ["onView:spike.views.probe"],
+  "main": "./extension.js",
+  "contributes": {
+    "views": {
+      "speckit": [
+        {
+          "id": "spike.views.probe",
+          "name": "Spike Probe",
+          "type": "webview"
+        }
+      ]
+    }
+  }
+}
