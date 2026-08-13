@@ -193,19 +193,19 @@ independent test surface.
 
 ### Tests for User Story 3
 
-- [ ] T067 [P] [US3] Integration tests for the refusal matrix in `.specify/extensions/ship/tests/integration/test_refusals.py` — not a repository, on the integration branch, detached HEAD, mid-rebase, mid-merge, no remote
-- [ ] T068 [P] [US3] Test in `.specify/extensions/ship/tests/integration/test_refusal_no_side_effects.py` capturing `git status --porcelain` plus a working-tree hash before and after every refusal and asserting them byte-identical (SC-003)
-- [ ] T069 [P] [US3] Unit tests for ambiguity handling in `.specify/extensions/ship/tests/unit/test_branch_ambiguity.py` — candidates presented, choice recorded, second run does not ask again (FR-003)
+- [X] T067 [P] [US3] Integration tests for the refusal matrix in `.specify/extensions/ship/tests/integration/test_refusals.py` — not a repository, on the integration branch, detached HEAD, mid-rebase, mid-merge, no remote
+- [X] T068 [P] [US3] Test in `.specify/extensions/ship/tests/integration/test_refusal_no_side_effects.py` capturing `git status --porcelain` plus a working-tree hash before and after every refusal and asserting them byte-identical (SC-003)
+- [X] T069 [P] [US3] Unit tests for ambiguity handling in `.specify/extensions/ship/tests/unit/test_branch_ambiguity.py` — candidates presented, choice recorded, second run does not ask again (FR-003)
 
 ### Implementation for User Story 3
 
-- [ ] T070 [US3] Implement the refusal matrix in `.specify/extensions/ship/scripts/preflight.py` — integration branch, detached HEAD, unfinished rebase or merge, each naming the blocking condition and exiting `10` before any state changes (FR-005)
-- [ ] T071 [US3] Implement the credential and reachability preconditions in `.specify/extensions/ship/scripts/preflight.py` using the T019 probe, stopping before committing anything and naming which precondition failed (FR-004)
-- [ ] T072 [US3] Implement one-time prompting in `.specify/extensions/ship/scripts/preflight.py` — present integration-branch candidates, record the answer with `source: user-answer`, and never re-ask in that repository (FR-003)
-- [ ] T073 [US3] Implement the release-mode ask-once path in `.specify/extensions/ship/scripts/preflight.py` for `none-determinable`, recording the answer (FR-043)
-- [ ] T074 [US3] Implement multi-target detection and refusal in `.specify/extensions/ship/scripts/preflight.py` — a repository whose integration branch feeds several independent release targets is reported **unsupported**, never partially released
+- [X] T070 [US3] Implement the refusal matrix in `.specify/extensions/ship/scripts/preflight.py` — integration branch, detached HEAD, unfinished rebase or merge, each naming the blocking condition and exiting `10` before any state changes (FR-005)
+- [X] T071 [US3] Implement the credential and reachability preconditions in `.specify/extensions/ship/scripts/preflight.py` using the T019 probe, stopping before committing anything and naming which precondition failed (FR-004)
+- [X] T072 [US3] Implement one-time prompting in `.specify/extensions/ship/scripts/preflight.py` — present integration-branch candidates, record the answer with `source: user-answer`, and never re-ask in that repository (FR-003)
+- [X] T073 [US3] Implement the release-mode ask-once path in `.specify/extensions/ship/scripts/preflight.py` for `none-determinable`, recording the answer (FR-043)
+- [X] T074 [US3] Implement multi-target detection and refusal in `.specify/extensions/ship/scripts/preflight.py` — a repository whose integration branch feeds several independent release targets is reported **unsupported**, never partially released
 - [X] T075 [US3] Write `.specify/extensions/ship/commands/speckit.ship.preflight.md` — the standalone, changes-nothing profile command that is this story's independent test surface
-- [ ] T076 [US3] Implement profile re-verification on every run in `.specify/extensions/ship/scripts/preflight.py` — a recorded profile is a cache of observations, never an authority (data-model.md)
+- [X] T076 [US3] Implement profile re-verification on every run in `.specify/extensions/ship/scripts/preflight.py` — a recorded profile is a cache of observations, never an authority (data-model.md)
 
 **Checkpoint**: quickstart.md Scenario 1 passes in all five setups; SC-002 and SC-003 measurable.
 

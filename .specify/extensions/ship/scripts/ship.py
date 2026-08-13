@@ -272,6 +272,27 @@ def cmd_preflight(args: argparse.Namespace) -> int:
             print(render_refusals(profile.refusals))
         return EXIT_REFUSED
 
+    # An undetermined integration branch is not a refusal — nothing unsafe
+    # happened — but it *is* a no to the question this command exists to answer.
+    # Exiting 0 here would tell a script that shipping is fine when the run
+    # cannot say where the work would go.
+    if not state_mod.is_determined(profile.integration_branch):
+        if not args.json:
+            print()
+            print(
+                "Cannot ship from here yet: the integration branch is undetermined.\n"
+                f"  {(profile.integration_branch or {}).get('reason', '')}"
+                + (
+                    "\n  Candidates found: "
+                    + ", ".join(profile.integration_branch_candidates)
+                    + "\n  Run /speckit-ship to choose one; the choice is recorded."
+                    if profile.integration_branch_candidates
+                    else "\n  Pass --target <branch>, or set target_branch in configuration."
+                )
+                + "\n\nNothing was changed."
+            )
+        return EXIT_REFUSED
+
     # Deliberately does NOT record the profile. contracts/commands.md specifies
     # this command as "changes nothing", and a state file appearing in a
     # repository because someone asked a read-only question is a change — one
@@ -493,6 +514,136 @@ def make_interaction(args: argparse.Namespace) -> pipeline.Interaction:
     )
 
 
+def _choose(prompt: str, options: List[str]) -> Optional[str]:
+    """Present numbered options and read one back. None means declined.
+
+    Non-interactive callers get None rather than a default. A tool that picks an
+    integration branch for you because nobody was at the terminal is exactly the
+    guess FR-002 forbids — it just launders it through a prompt nobody saw.
+    """
+    if not sys.stdin.isatty():
+        return None
+
+    print()
+    print(prompt)
+    print()
+    for index, option in enumerate(options, start=1):
+        print(f"  {index}. {option}")
+    print()
+
+    try:
+        answer = input(f"Choose 1-{len(options)} (anything else to cancel): ").strip()
+    except EOFError:
+        return None
+
+    if not answer.isdigit():
+        return None
+    choice = int(answer)
+    if not (1 <= choice <= len(options)):
+        return None
+    return options[choice - 1]
+
+
+def ask_integration_branch(repo_root: Path, profile: preflight.Profile) -> Optional[str]:
+    """FR-003 — ask once when detection could not decide, and record the answer.
+
+    Asked only when the systems of record genuinely disagreed or stayed silent.
+    The answer is persisted to committed configuration, so this repository does
+    not ask again — and neither does a colleague's checkout of it.
+    """
+    reason = (profile.integration_branch or {}).get("reason", "")
+    candidates = profile.integration_branch_candidates
+
+    print()
+    print("The integration branch could not be determined.")
+    print(f"  {reason}")
+
+    if not candidates:
+        print()
+        print(
+            "  No candidate branches were found either, so there is nothing to "
+            "choose between.\n"
+            "  Pass --target <branch>, or set target_branch in "
+            ".specify/extensions/ship/config.json.\n"
+            "\nNothing was changed."
+        )
+        return None
+
+    chosen = _choose(
+        "Which branch do you ship into? This is recorded, and you will not be asked again.",
+        candidates,
+    )
+
+    if chosen is None:
+        print()
+        print(
+            "  No branch was chosen, so nothing was changed.\n"
+            "  Pass --target <branch> to ship without recording a choice."
+        )
+        return None
+
+    preflight.record_branch_answer(profile, chosen)
+    saved = preflight.persist_branch_answer(repo_root, chosen)
+
+    if saved["saved"]:
+        print(f"  Recorded {chosen!r} as the integration branch in {saved['path']}.")
+    else:
+        # Proceeding on the in-memory answer, and saying plainly that it did not
+        # stick — rather than implying the question is settled.
+        print(
+            f"  Using {chosen!r} for this run, but it could NOT be saved, so you "
+            f"will be asked again:\n    {saved['problem']}"
+        )
+
+    return chosen
+
+
+def ask_release_mode(repo_root: Path, profile: preflight.Profile) -> Optional[str]:
+    """FR-043 — ask once when the release mode could not be classified.
+
+    ``executed`` is deliberately not offered here. It requires a declared
+    release action, and this tool never composes one — offering it at a prompt
+    would invite an answer that cannot be saved and would fail at the release
+    stage on every subsequent run.
+    """
+    reason = (profile.release_mode or {}).get("reason", "")
+
+    print()
+    print("The release mode for this repository could not be determined.")
+    print(f"  {reason}")
+    if profile.release_evidence:
+        print(f"  {profile.release_evidence}")
+
+    chosen = _choose(
+        "What does releasing mean here? This is recorded, and you will not be asked again.",
+        [
+            "observed — the repository's own automation releases on merge; the run watches it",
+            "none — this repository has no release step; ship stops after cleanup",
+        ],
+    )
+
+    if chosen is None:
+        print(
+            "  No answer given. The run will stop at the release stage rather "
+            "than guess what releasing means here."
+        )
+        return None
+
+    mode = "observed" if chosen.startswith("observed") else "none"
+    preflight.record_release_mode_answer(profile, mode)
+    saved = preflight.persist_release_mode_answer(repo_root, mode)
+
+    if saved["saved"]:
+        print(f"  Recorded release mode {mode!r} in {saved['path']}.")
+    else:
+        print(
+            f"  Using {mode!r} for this run, but it could NOT be saved, so you "
+            f"will be asked again:\n    {saved['problem']}"
+        )
+
+    return mode
+
+
 def cmd_ship(args: argparse.Namespace) -> int:
     repo_root = resolve_root(args.root)
     loaded = config_mod.load(repo_root)
@@ -521,19 +672,20 @@ def cmd_ship(args: argparse.Namespace) -> int:
     branch = profile.current_branch
 
     if not target:
-        print()
-        print(
-            "Refusing to ship: the integration branch could not be determined.\n"
-            "  "
-            + (profile.integration_branch or {}).get("reason", "")
-            + (
-                "\n  Candidates found: " + ", ".join(profile.integration_branch_candidates)
-                if profile.integration_branch_candidates
-                else ""
-            )
-            + "\n  Set it with: ship config, or pass --target <branch>.\n\nNothing was changed."
-        )
-        return EXIT_REFUSED
+        target = ask_integration_branch(repo_root, profile)
+        if not target:
+            return EXIT_REFUSED
+        # Re-derive the working-copy checks against the branch we just learned:
+        # "you are on the integration branch" could not be decided before now.
+        profile.refusals = []
+        preflight.check_working_copy(profile, integration_branch=target, cwd=repo_root)
+        if profile.blocked:
+            print()
+            print(render_refusals(profile.refusals))
+            return EXIT_REFUSED
+
+    if not state_mod.is_determined(profile.release_mode):
+        ask_release_mode(repo_root, profile)
 
     print(render_intent(profile, branch=branch, target=target, config=config))
 

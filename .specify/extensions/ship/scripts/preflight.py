@@ -314,10 +314,50 @@ def record_branch_answer(profile: Profile, branch: str) -> Dict[str, Any]:
 
     ``source: user-answer`` is what makes it auditable later: the profile says a
     human decided this, not a heuristic.
+
+    This updates the **in-memory** profile only. Durability is
+    ``persist_branch_answer`` — see its docstring for why the two are separate.
     """
     profile.integration_branch = determined(branch, "user-answer")
     profile.integration_branch_candidates = []
     return profile.integration_branch
+
+
+def persist_branch_answer(repo_root: Path, branch: str) -> Dict[str, Any]:
+    """Save the answer so no later run asks again. (FR-003)
+
+    The answer goes to **config.json**, not to the recorded profile, and the
+    distinction is the whole point:
+
+    * ``state.json`` holds *observations*. It is gitignored, and it is a cache —
+      re-verified on every run, never an authority. An answer stored there would
+      be re-asked by a colleague, and lost on the first corrupt-file recovery.
+    * ``config.json`` holds *stated intent*. It is committed, so the answer
+      travels with the repository (FR-041), and step 1 of the R4 precedence
+      already reads it before any detection runs.
+
+    So persisting an answer is simply writing the configuration the developer
+    just supplied. There is no second mechanism, and no way for the two to
+    disagree.
+
+    Returns ``{"saved": bool, "path": …, "problem": …}`` rather than raising: an
+    answer that cannot be saved must not abort a run that is otherwise fine. The
+    run proceeds with the answer in memory and says it will ask again.
+    """
+    from scripts import config as config_mod
+
+    loaded = config_mod.load(repo_root)
+    updated = dict(loaded.config)
+    updated["target_branch"] = branch
+
+    try:
+        path = config_mod.save(repo_root, updated)
+    except config_mod.ConfigError as exc:
+        return {"saved": False, "path": None, "problem": str(exc)}
+    except OSError as exc:
+        return {"saved": False, "path": None, "problem": f"could not write configuration: {exc}"}
+
+    return {"saved": True, "path": path, "problem": None}
 
 
 # --------------------------------------------------------------------------
@@ -485,10 +525,44 @@ def _branch_matches(pattern: str, branch: str) -> bool:
 
 
 def record_release_mode_answer(profile: Profile, mode: str) -> Dict[str, Any]:
-    """FR-043's ask-once path."""
+    """FR-043's ask-once path. In-memory; see ``persist_release_mode_answer``."""
     profile.release_mode = determined(mode, "user-answer")
     profile.release_evidence = "developer answered at preflight"
     return profile.release_mode
+
+
+def persist_release_mode_answer(
+    repo_root: Path, mode: str, *, action: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """Save the release-mode answer so no later run asks again. (FR-043)
+
+    Same reasoning as ``persist_branch_answer``: this is stated intent, so it
+    belongs in the committed configuration.
+
+    ``executed`` requires a declared ``release.action``, and validation refuses
+    the save without one. That refusal is correct rather than inconvenient — the
+    tool never composes a release action, so recording "executed" with nothing
+    to execute would produce a repository that fails at the release stage on
+    every future run, with the failure attributed to the wrong place.
+    """
+    from scripts import config as config_mod
+
+    loaded = config_mod.load(repo_root)
+    updated = dict(loaded.config)
+    release = dict(updated.get("release") or {})
+    release["mode"] = mode
+    if action is not None:
+        release["action"] = action
+    updated["release"] = release
+
+    try:
+        path = config_mod.save(repo_root, updated)
+    except config_mod.ConfigError as exc:
+        return {"saved": False, "path": None, "problem": str(exc)}
+    except OSError as exc:
+        return {"saved": False, "path": None, "problem": f"could not write configuration: {exc}"}
+
+    return {"saved": True, "path": path, "problem": None}
 
 
 def detect_multi_target(
