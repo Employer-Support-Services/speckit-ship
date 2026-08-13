@@ -820,6 +820,54 @@
       "kind": "complete",
       "by": "extension",
       "at": "2026-08-13T15:49:18.981Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T096",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T17:15:39.873Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T097",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T17:15:39.873Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T098",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T17:15:39.873Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T099",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T17:15:39.873Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T100",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T17:15:39.873Z"
+    },
+    {
+      "step": "implement",
+      "substep": null,
+      "task": "T101",
+      "kind": "complete",
+      "by": "extension",
+      "at": "2026-08-13T17:15:39.873Z"
     }
   ],
   "branch": "main",
@@ -1019,5 +1067,5 @@
       "summary": "Planned SpecKit Ship as a stdlib-Python SpecKit extension driving git+gh behind one HostingClient seam, writing a Determined<T>-wrapped per-repo state.json that a separate VS Code Ship view reads; two measured findings reshaped it — gh 2.4.0 has no machine-readable `gh pr checks`, and the Companion’s tabs are compiled and closed."
     }
   },
-  "currentTask": "T096"
+  "currentTask": "T102"
 }

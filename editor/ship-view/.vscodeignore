@@ -1,0 +1,12 @@
+# The published extension is the esbuild bundle. Shipping the TypeScript
+# source, the tests, and the toolchain config makes the package larger and
+# invites someone to edit files that are never loaded.
+src/**
+node_modules/**
+*.vsix
+tsconfig.json
+vitest.config.ts
+esbuild.mjs
+package-lock.json
+**/*.map
+.vscodeignore

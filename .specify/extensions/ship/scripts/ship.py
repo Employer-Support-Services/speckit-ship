@@ -473,24 +473,29 @@ def build_parser() -> argparse.ArgumentParser:
         target.add_argument("--from", dest="from_stage", default=None, help="Re-enter at a named stage")
         target.add_argument("--no-network", action="store_true", help=argparse.SUPPRESS)
 
+    # Every shared flag below uses SUPPRESS so that a value given BEFORE the
+    # subcommand survives. Without it argparse writes the subparser's own
+    # default over the top-level parser's result, and `--no-network preflight`
+    # silently reaches the network — which is exactly what happened, and only
+    # showed up when CI removed the network.
     pre = sub.add_parser("preflight", help="Report the repository profile; change nothing")
-    pre.add_argument("--target", default=None)
+    pre.add_argument("--target", default=argparse.SUPPRESS)
     pre.add_argument("--json", action="store_true")
-    pre.add_argument("--no-network", action="store_true")
-    pre.add_argument("--root", type=Path, default=None, help=argparse.SUPPRESS)
+    pre.add_argument("--no-network", action="store_true", default=argparse.SUPPRESS)
+    pre.add_argument("--root", type=Path, default=argparse.SUPPRESS, help=argparse.SUPPRESS)
     pre.set_defaults(func=cmd_preflight)
 
     status = sub.add_parser("status", help="Render recorded ship state; read-only")
     status.add_argument("--json", action="store_true")
     status.add_argument("--limit", type=int, default=5)
-    status.add_argument("--root", type=Path, default=None, help=argparse.SUPPRESS)
+    status.add_argument("--root", type=Path, default=argparse.SUPPRESS, help=argparse.SUPPRESS)
     status.set_defaults(func=cmd_status)
 
     cfg = sub.add_parser("config", help="Show, set, and validate ship configuration")
     cfg.add_argument("config_action", choices=["show", "set", "validate"], default="show", nargs="?")
     cfg.add_argument("key", nargs="?", default=None, help="Dotted key, e.g. limits.repair_budget")
     cfg.add_argument("value", nargs="?", default=None, help="New value; empty string unsets it")
-    cfg.add_argument("--root", type=Path, default=None, help=argparse.SUPPRESS)
+    cfg.add_argument("--root", type=Path, default=argparse.SUPPRESS, help=argparse.SUPPRESS)
     cfg.set_defaults(func=cmd_config)
 
     return parser
@@ -798,6 +803,12 @@ def cmd_ship(args: argparse.Namespace) -> int:
 def main(argv: Optional[List[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    # Fill in anything SUPPRESS left absent, so subcommands can read these
+    # unconditionally regardless of where the flag appeared.
+    for name, fallback in (("target", None), ("no_network", False), ("root", None)):
+        if not hasattr(args, name):
+            setattr(args, name, fallback)
 
     if getattr(args, "func", None) is not None:
         return args.func(args)
