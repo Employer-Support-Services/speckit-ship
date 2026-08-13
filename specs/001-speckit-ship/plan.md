@@ -94,6 +94,18 @@ user-facing surface*; *an unobserved value is recorded as undetermined, never in
 *outward-facing irreversible actions are confirmed per run*. Nothing in this feature is
 blocked on that happening.
 
+> **Update, 2026-08-13 (T102).** Those three commitments were ratified as
+> `.specify/memory/constitution.md` v1.0.0, *after* this feature was designed and built.
+>
+> The Constitution Check recorded above is left as it was written, and remains accurate: at
+> the time of the gate there were no principles to check against, so it passed vacuously.
+> Amending it to claim it passed against principles that did not yet exist would be a
+> fabricated check — the same defect the first of those principles forbids.
+>
+> **Future features are gated; this one was not.** What this feature offers instead is
+> evidence: each principle names the mechanism that enforces it here, and each was ratified
+> because a system was built against it rather than in the hope one would be.
+
 ## Project Structure
 
 ### Documentation (this feature)

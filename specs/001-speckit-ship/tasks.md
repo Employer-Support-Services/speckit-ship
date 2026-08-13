@@ -260,7 +260,7 @@ independent test surface.
 - [X] T099 [P] Add a CI workflow at `.github/workflows/ship-tests.yml` running `python3 -m unittest discover` plus the T007 import check, with network access disabled to prove the suite is hermetic
 - [X] T100 [P] Package `editor/ship-view/` as a `.vsix` and verify installation into a clean VS Code profile
 - [X] T101 Execute the full quickstart.md Definition of Done checklist and record the result
-- [ ] T102 Run `/speckit-constitution` and consider ratifying the three commitments plan.md names — no simulated behavior on a user-facing surface, unobserved values recorded as undetermined, per-run confirmation on irreversible outward actions. Currently `.specify/memory/constitution.md` is the unfilled template, so nothing in this feature was gated
+- [X] T102 Run `/speckit-constitution` and consider ratifying the three commitments plan.md names — no simulated behavior on a user-facing surface, unobserved values recorded as undetermined, per-run confirmation on irreversible outward actions. Currently `.specify/memory/constitution.md` is the unfilled template, so nothing in this feature was gated
 
 ---
 
